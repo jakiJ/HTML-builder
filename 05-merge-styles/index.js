@@ -14,9 +14,7 @@ function styleBundler(pathDir) {
         items.forEach(item => {
             if (path.extname(`${pathDir}/${item}`) == '.css') {
                 const readFile = fs.createReadStream(`${pathDir}/${item}`)
-                readFile.on('data', data => {
-                    writeFile.write(data)
-                })
+                readFile.pipe(writeFile, { end: false })
             }
         })
     })
