@@ -9,7 +9,7 @@ function returnInfoFile (pathDir) {
             if (file.isFile()) {
                 fs.stat(`${pathDir}/${file.name}`, (error, stats) => {
                     if (error) throw error;
-                    const size = `${stats.size / 1000}kb`;
+                    const size = `${stats.size / 1024}kb`;
                     const ext = path.extname(`${pathDir}/${file.name}`).split('').filter(symb => symb !== '.').join('');
                     const name = (file.name).split('.').filter(word => word !== ext);
                     stdout.write(`${name} - ${ext} - ${size}\n`)
