@@ -1,5 +1,7 @@
+const { Console } = require('console');
 const fs = require('fs');
 const path = require('path');
+const { stdout } = process;
 
 //pathes to dir
 
@@ -19,7 +21,7 @@ fs.mkdir(`${__dirname}/project-dist`,{recursive: true}, (error) => {
   });
 
 function bundlerProject(stylePath, htmlPath, assetsPath) {
-    //bundler style
+    // bundler style
     fs.readdir(stylePath, (err, styleFiles) => {
         if (err) throw err;
         styleFiles.forEach((styleFile) => {
@@ -28,7 +30,7 @@ function bundlerProject(stylePath, htmlPath, assetsPath) {
         })
     })
 
-    //bundler assets
+    // bundler assets
     fs.mkdir(`${__dirname}/project-dist/assets`, {recursive: true}, (err) => {
         if (err) throw err;
     })
@@ -56,6 +58,27 @@ function bundlerProject(stylePath, htmlPath, assetsPath) {
     bundlerAssets(assetsPath, `${__dirname}/project-dist/assets`)
 
     //bundler html
+    const pathTemplete = path.join(__dirname, 'template.html');
+    const readTemplate = fs.createReadStream(pathTemplete,'utf-8');
+    let textTemplate = '';
+    readTemplate.on('data', data => textTemplate += data);
+    readTemplate.on('end', () => {
+        fs.readdir(htmlPath, (err, components) => {
+            if (err) throw err;
+            components.forEach((component, index) => {
+                const name = component.split('.').filter(word => word !== 'html').join('').trim();
+                const readComponent = fs.createReadStream(`${htmlPath}/${component}`);
+                let textComponent = '';
+                readComponent.on('data', data => textComponent += data);
+                readComponent.on('end', () => {
+                    textTemplate = textTemplate.replace(`{{${name}}}`, textComponent);
+                    if (index == components.length - 1) {
+                        writeIndex.write(textTemplate)
+                    }
+                })
+            })
+        })
+    })
 }
 
 bundlerProject(dirStyle, dirComponents, dirAssets)
